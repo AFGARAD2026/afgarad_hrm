@@ -5,7 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 
 export const getAllEmployees = async (req: Request, res: Response) => {
   try {
-    res.status(200).json(await db.select().from(employees));
+    const data = await db.select().from(employees);
+    return res.status(200).json({
+      message: "Successfully Fetched Employees",
+      data: data,
+    });
   } catch (error) {
     console.error("Error fetching employees:", error);
     res

@@ -7,7 +7,7 @@ export const createDepartment = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
 
-    const [newDepartment] = await db
+    const newDepartment = await db
       .insert(departments)
       .values({
         id: uuidv4(),
@@ -24,7 +24,7 @@ export const createDepartment = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error creating department:", error);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "An error occurred while creating the department.",
     });
@@ -33,9 +33,9 @@ export const createDepartment = async (req: Request, res: Response) => {
 
 export const getAllDepartments = async (req: Request, res: Response) => {
   try {
-    const [department] = await db.select().from(departments);
+    const department = await db.select().from(departments);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Successfully fetched Data",
       success: true,
       data: department,

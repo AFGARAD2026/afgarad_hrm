@@ -1,0 +1,6 @@
+{
+  "name": "HRMS Dashboard",
+  "description": "An enterprise-level, modern SaaS HR Management System Dashboard with employee directory, recruitment kanban, leave tracker, and performance reviews.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
