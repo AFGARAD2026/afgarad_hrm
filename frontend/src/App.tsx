@@ -24,8 +24,8 @@ import { UnauthorizedPage } from "./features/auth/pages/UnauthorizedPage";
 
 type ActiveView =
   | "Dashboard"
-  | "Directory"
-  | "Recruitment"
+  | "Register"
+  | "Hiring"
   | "Leave"
   | "Performance"
   | "Departments"
@@ -68,8 +68,8 @@ function HRMSAppShell() {
       {activeView === "Dashboard" && (
         <DashboardOverview
           onNavigate={(v) => {
-            if (v === "Directory") {
-              setActiveView("Directory");
+            if (v === "Register") {
+              setActiveView("Register");
               setIsAddEmployeeOpenFromDashboard(false);
             } else {
               setActiveView(v as ActiveView);
@@ -79,13 +79,13 @@ function HRMSAppShell() {
           openEmployeeModal={() => setIsAddEmployeeOpenFromDashboard(true)}
         />
       )}
-      {activeView === "Directory" && (
+      {activeView === "Register" && (
         <EmployeeDirectory
           isAddModalOpenFromApp={isAddEmployeeOpenFromDashboard}
           closeAddModalFromApp={() => setIsAddEmployeeOpenFromDashboard(false)}
         />
       )}
-      {activeView === "Recruitment" && <RecruitmentPipeline />}
+      {activeView === "Hiring" && <RecruitmentPipeline />}
       {activeView === "Leave" && (
         <LeaveTracker
           isAddModalOpenFromApp={isAddLeaveOpenFromDashboard}

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Search, Plus, RefreshCw } from "lucide-react";
 import { useEmployees, useCreateEmployee } from "../hooks/useEmployees";
 import { useDepartments } from "../../departments/hooks/useDepartments";
+import type { EmployeeApiModel } from "../types";
 
 const employeeSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -32,6 +33,8 @@ export function EmployeeDirectory({
   const createEmployeeMutation = useCreateEmployee();
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
     register,
@@ -52,7 +55,7 @@ export function EmployeeDirectory({
   }, [isAddModalOpenFromApp]);
 
   const filteredEmployees = useMemo(() => {
-    return employees.filter(
+    return (employees as EmployeeApiModel[]).filter(
       (employee) =>
         employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,7 +72,25 @@ export function EmployeeDirectory({
       baseSalary: 0,
       joinDate: new Date().toISOString().slice(0, 10),
     });
+    setSelectedImage(null);
+    setImagePreview(null);
     setIsOpen(true);
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setSelectedImage(file);
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    closeAddModalFromApp();
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   const onSubmit = async (data: EmployeeFormInput) => {
@@ -79,8 +100,7 @@ export function EmployeeDirectory({
         baseSalary: Number(data.baseSalary),
       });
       toast.success("Employee created successfully");
-      setIsOpen(false);
-      closeAddModalFromApp();
+      closeModal();
       reset();
     } catch (submitError: any) {
       toast.error(
@@ -94,6 +114,17 @@ export function EmployeeDirectory({
   const departmentNameById = (departmentId: string) =>
     departments.find((department) => department.id === departmentId)?.name ??
     departmentId;
+
+  const formatSalary = (value: string | number) =>
+    `$${Number(value).toLocaleString()}`;
+
+  React.useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   return (
     <div className="space-y-6">
@@ -179,7 +210,7 @@ export function EmployeeDirectory({
                         {employee.role}
                       </td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                        ${Number(employee.baseSalary).toLocaleString()}
+                        {formatSalary(employee.baseSalary)}
                       </td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                         {employee.joinDate}
@@ -200,96 +231,152 @@ export function EmployeeDirectory({
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Create Employee
               </h3>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  closeAddModalFromApp();
-                }}
-                className="text-slate-400"
-              >
+              <button onClick={closeModal} className="text-slate-400">
                 x
               </button>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-              <div>
-                <input
-                  {...register("name")}
-                  placeholder="Full name"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-xs text-rose-600">
-                    {errors.name.message}
-                  </p>
-                )}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Employee photo
+                </label>
+                <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center transition hover:border-indigo-400 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-indigo-500 dark:hover:bg-slate-800">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Employee preview"
+                      className="mb-3 h-24 w-24 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                      <Plus size={20} />
+                    </div>
+                  )}
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {selectedImage
+                      ? selectedImage.name
+                      : "Upload employee image"}
+                  </span>
+                  <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    PNG, JPG, or JPEG up to a few MB
+                  </span>
+                </label>
               </div>
-              <div>
-                <input
-                  {...register("email")}
-                  placeholder="Email"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
-                />
-                {errors.email && (
-                  <p className="mt-1 text-xs text-rose-600">
-                    {errors.email.message}
-                  </p>
-                )}
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Full name
+                  </label>
+                  <input
+                    {...register("name")}
+                    placeholder="Full name"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-xs text-rose-600">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email address
+                  </label>
+                  <input
+                    {...register("email")}
+                    placeholder="Email"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-xs text-rose-600">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <select
-                  {...register("departmentId")}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
-                >
-                  <option value="">Select department</option>
-                  {departments.map((department) => (
-                    <option key={department.id} value={department.id}>
-                      {department.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.departmentId && (
-                  <p className="mt-1 text-xs text-rose-600">
-                    {errors.departmentId.message}
-                  </p>
-                )}
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Department
+                  </label>
+                  <select
+                    {...register("departmentId")}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                  >
+                    <option value="">Select department</option>
+                    {departments.map((department) => (
+                      <option key={department.id} value={department.id}>
+                        {department.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.departmentId && (
+                    <p className="mt-1 text-xs text-rose-600">
+                      {errors.departmentId.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Role
+                  </label>
+                  <input
+                    {...register("role")}
+                    placeholder="Role"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                  />
+                  {errors.role && (
+                    <p className="mt-1 text-xs text-rose-600">
+                      {errors.role.message}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <input
-                  {...register("role")}
-                  placeholder="Role"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
-                />
-                {errors.role && (
-                  <p className="mt-1 text-xs text-rose-600">
-                    {errors.role.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <input
-                  type="number"
-                  {...register("baseSalary")}
-                  placeholder="Base salary"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
-                />
-                {errors.baseSalary && (
-                  <p className="mt-1 text-xs text-rose-600">
-                    {errors.baseSalary.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <input
-                  type="date"
-                  {...register("joinDate")}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
-                />
-                {errors.joinDate && (
-                  <p className="mt-1 text-xs text-rose-600">
-                    {errors.joinDate.message}
-                  </p>
-                )}
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Base salary
+                  </label>
+                  <input
+                    type="number"
+                    {...register("baseSalary")}
+                    placeholder="Base salary"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                  />
+                  {errors.baseSalary && (
+                    <p className="mt-1 text-xs text-rose-600">
+                      {errors.baseSalary.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Join date
+                  </label>
+                  <input
+                    type="date"
+                    {...register("joinDate")}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                  />
+                  {errors.joinDate && (
+                    <p className="mt-1 text-xs text-rose-600">
+                      {errors.joinDate.message}
+                    </p>
+                  )}
+                </div>
               </div>
               <button
                 disabled={createEmployeeMutation.isPending}

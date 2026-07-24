@@ -2,6 +2,7 @@ import express from "express";
 import {
   createEmployee,
   getAllEmployees,
+  getEmployeeById,
 } from "../controllers/employee.controller";
 
 const router = express.Router();
@@ -10,8 +11,12 @@ const router = express.Router();
 // GET /api/employees
 router.get("/", getAllEmployees);
 
+// Route to get a single employee
+// GET /api/employees/:id
+router.get("/:id", getEmployeeById);
+
 // Route to create a new employee
-// POST /api/employees
+// POST /api/employees/create
 router.post("/create", createEmployee);
 
 export default router;

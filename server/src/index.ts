@@ -21,7 +21,7 @@ app.use("/api/users", routes.userRoutes);
 app.use("/api/attendance", routes.attendanceRoutes);
 
 const server = createServer(app);
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

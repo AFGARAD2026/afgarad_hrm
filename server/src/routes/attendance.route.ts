@@ -10,8 +10,10 @@ const router = express.Router();
 // POST /api/attendance/record
 router.post("/record", recordAttendance);
 
-// Route to get attendance records for an employee
-// GET /api/attendance/records/:employeeId
-router.get("/records/:employeeId", getAttendanceRecords);
+// Route to get all attendance records or records for an employee
+// GET /api/attendance
+// GET /api/attendance/:employeeId
+router.get("/", getAttendanceRecords);
+router.get("/:employeeId", getAttendanceRecords);
 
 export default router;
