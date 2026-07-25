@@ -1,5 +1,5 @@
 import { attendance, employees } from "../db/schema.js";
-import { db } from "../db";
+import { db } from "../db/index.js";
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm";
