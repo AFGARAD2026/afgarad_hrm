@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Importing routes
-import { routes } from "./routes";
+import { routes } from "./routes/index.js";
 
 const app = express();
 app.use(BodyParser.json());

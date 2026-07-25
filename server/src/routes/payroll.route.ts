@@ -1,5 +1,5 @@
 import express from "express";
-import { generatePayslip } from "../controllers/payroll.controller";
+import { generatePayslip } from "../controllers/payroll.controller.js";
 
 const router = express.Router();
 

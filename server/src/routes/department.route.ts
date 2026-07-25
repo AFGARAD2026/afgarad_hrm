@@ -3,7 +3,7 @@ import {
   createDepartment,
   getAllDepartments,
   getDepartmentById,
-} from "../controllers/department.controller";
+} from "../controllers/department.controller.js";
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
-import { departments } from "../db/schema";
-import { db } from "../db";
+import { departments } from "../db/schema.js";
+import { db } from "../db/index.js";
 import { v4 as uuidv4 } from "uuid";
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";

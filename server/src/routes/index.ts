@@ -1,8 +1,8 @@
-import userRoutes from "./users.route";
-import attendanceRoutes from "./attendance.route";
-import departmentRoutes from "./department.route";
-import employeeRoutes from "./employee.route";
-import payrollRoutes from "./payroll.route";
+import userRoutes from "./users.route.js";
+import attendanceRoutes from "./attendance.route.js";
+import departmentRoutes from "./department.route.js";
+import employeeRoutes from "./employee.route.js";
+import payrollRoutes from "./payroll.route.js";
 
 export const routes = {
   userRoutes,

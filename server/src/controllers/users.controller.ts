@@ -1,11 +1,11 @@
-import { users } from "../db/schema";
-import { db } from "../db";
+import { users } from "../db/schema.js";
+import { db } from "../db/index.js";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm";
-import { USER_ROLES } from "../utils/user.role";
+import { USER_ROLES } from "../utils/user.role.js";
 
 export const registerUser = async (req: Request, res: Response) => {
   try {

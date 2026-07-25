@@ -1,4 +1,4 @@
-import { attendance, employees } from "../db/schema";
+import { attendance, employees } from "../db/schema.js";
 import { db } from "../db";
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
@@ -48,7 +48,9 @@ export const recordAttendance = async (req: Request, res: Response) => {
 export const getAttendanceRecords = async (req: Request, res: Response) => {
   try {
     const rawEmployeeId = req.params.employeeId;
-    const employeeId = Array.isArray(rawEmployeeId) ? rawEmployeeId[0] : rawEmployeeId;
+    const employeeId = Array.isArray(rawEmployeeId)
+      ? rawEmployeeId[0]
+      : rawEmployeeId;
     const records = employeeId
       ? await db
           .select()

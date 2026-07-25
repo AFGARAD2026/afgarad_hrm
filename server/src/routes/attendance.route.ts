@@ -2,7 +2,7 @@ import express from "express";
 import {
   recordAttendance,
   getAttendanceRecords,
-} from "../controllers/attendance.controller";
+} from "../controllers/attendance.controller.js";
 
 const router = express.Router();
 
