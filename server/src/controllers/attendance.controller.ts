@@ -47,7 +47,8 @@ export const recordAttendance = async (req: Request, res: Response) => {
 // Controller for getting attendance records
 export const getAttendanceRecords = async (req: Request, res: Response) => {
   try {
-    const { employeeId } = req.params;
+    const rawEmployeeId = req.params.employeeId;
+    const employeeId = Array.isArray(rawEmployeeId) ? rawEmployeeId[0] : rawEmployeeId;
     const records = employeeId
       ? await db
           .select()

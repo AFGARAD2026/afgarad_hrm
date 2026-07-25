@@ -27,7 +27,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
     const [employee] = await db
       .select()
       .from(employees)
-      .where(eq(employees.id, id));
+      .where(eq(employees.id, id as string));
 
     if (!employee) {
       return res.status(404).json({

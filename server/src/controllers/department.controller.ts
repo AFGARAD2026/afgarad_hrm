@@ -63,7 +63,7 @@ export const getDepartmentById = async (req: Request, res: Response) => {
     const [department] = await db
       .select()
       .from(departments)
-      .where(eq(departments.id, id));
+      .where(eq(departments.id, id as string));
 
     if (!department) {
       return res.status(404).json({
