@@ -17,4 +17,5 @@ export interface CreateEmployeeInput {
   role: string;
   baseSalary: number;
   joinDate: string;
+  image?: string;
 }

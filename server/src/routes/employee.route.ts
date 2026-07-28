@@ -17,6 +17,11 @@ router.get("/:id", auth, getEmployeeById);
 
 // Route to create a new employee
 // POST /api/employees/create
-router.post("/create", auth, authorizeRoles(["SUPER_ADMIN"]), createEmployee);
+router.post(
+  "/create",
+  auth,
+  authorizeRoles(["ADMIN", "HR_MANAGER"]),
+  createEmployee,
+);
 
 export default router;

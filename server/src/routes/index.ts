@@ -3,6 +3,7 @@ import attendanceRoutes from "./attendance.route.js";
 import departmentRoutes from "./department.route.js";
 import employeeRoutes from "./employee.route.js";
 import payrollRoutes from "./payroll.route.js";
+import uploadRoutes from "./upload.route.js";
 
 export const routes = {
   userRoutes,
@@ -10,4 +11,5 @@ export const routes = {
   departmentRoutes,
   employeeRoutes,
   payrollRoutes,
+  uploadRoutes,
 };

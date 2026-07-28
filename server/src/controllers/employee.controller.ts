@@ -56,11 +56,15 @@ export const createEmployee = async (req: Request, res: Response) => {
       name,
       departmentId,
       email,
+      image,
       joinDate,
       baseSalary,
       role,
       status = "ACTIVE",
     } = req.body;
+
+    // Ensure `image` is never null/undefined to satisfy DB NOT NULL constraint
+    const safeImage = image ?? "";
 
     if (!name || !departmentId || !email || !joinDate || !baseSalary || !role) {
       return res.status(400).json({
@@ -76,11 +80,12 @@ export const createEmployee = async (req: Request, res: Response) => {
         name,
         departmentId,
         email,
+        avatar: safeImage,
         joinDate,
         baseSalary: String(baseSalary),
         role,
         status,
-      })
+      } as any)
       .returning();
 
     return res.status(201).json({

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Search, Plus, RefreshCw } from "lucide-react";
 import { useEmployees, useCreateEmployee } from "../hooks/useEmployees";
 import { useDepartments } from "../../departments/hooks/useDepartments";
+import { api } from "../../../lib/api/axios";
 import type { EmployeeApiModel } from "../types";
 
 const employeeSchema = z.object({
@@ -89,6 +90,8 @@ export function EmployeeDirectory({
     setImagePreview(previewUrl);
   };
 
+  // We'll upload the selected image to the server and get back a URL
+
   const closeModal = () => {
     setIsOpen(false);
     setSelectedEmployee(null);
@@ -99,9 +102,20 @@ export function EmployeeDirectory({
 
   const onSubmit = async (data: EmployeeFormInput) => {
     try {
+      let imageUrl = "";
+      if (selectedImage) {
+        const form = new FormData();
+        form.append("file", selectedImage);
+        const uploadRes = await api.post("/api/uploads", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        imageUrl = uploadRes.data?.data?.url ?? "";
+      }
+
       await createEmployeeMutation.mutateAsync({
         ...data,
         baseSalary: Number(data.baseSalary),
+        image: imageUrl,
       });
       toast.success("Employee created successfully");
       closeModal();

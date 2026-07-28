@@ -64,7 +64,7 @@ export const employees = pgTable("employees", {
 
   avatar: varchar("image", {
     length: 200,
-  }).notNull(),
+  }),
 
   status: varchar("status", {
     length: 30,
