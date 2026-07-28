@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../providers/AuthProvider";
 import { useHR } from "../providers/HRProvider";
 import { Sidebar, SidebarItem } from "./components/Sidebar";
 import { Header } from "./components/Header";
@@ -48,6 +49,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   setPayrollSubView,
 }) => {
   const { logs, leaveRequests, employees, departments } = useHR();
+  const { user } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -291,6 +293,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     },
   ];
 
+  const hrManagerMenuNames = new Set([
+    "Register",
+    "Departments",
+    "Attendance",
+    "Leave Tracker",
+    "Overtime",
+  ]);
+
+  const sidebarMenuToRender =
+    user?.role === "HR_MANAGER"
+      ? sidebarMenu.filter((item) => hrManagerMenuNames.has(item.name))
+      : sidebarMenu;
+
   const handleParentClick = (item: SidebarItem) => {
     if (item.onClick) {
       item.onClick();
@@ -306,7 +321,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-slate-950 text-slate-100 dark" : "bg-slate-50/40 text-slate-900"} flex flex-col font-sans select-none antialiased transition-colors duration-300`}
+      className={`min-h-screen ${isDarkMode ? "bg-slate-950 text-slate-100 dark" : "bg-slate-100 text-slate-900"} flex flex-col font-sans select-none antialiased transition-colors duration-300`}
     >
       {/* Header */}
       <Header
@@ -343,7 +358,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <Sidebar
           sidebarCollapsed={sidebarCollapsed}
           setSidebarCollapsed={setSidebarCollapsed}
-          sidebarMenu={sidebarMenu}
+          sidebarMenu={sidebarMenuToRender}
           expandedMenus={expandedMenus}
           handleParentClick={handleParentClick}
           getAccentSidebarClass={getAccentSidebarClass}
@@ -352,8 +367,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         />
 
         {/* Dynamic page contents body render area */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-50/50 dark:bg-slate-950/20 transition-colors">
-          <div className="max-w-7xl mx-auto space-y-6 text-left">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 transition-colors">
+          <div className="max-w-7xl mx-auto space-y-6 text-left bg-white shadow-xl rounded-3xl border border-slate-200/70 dark:bg-slate-950 dark:border-slate-800/70 dark:shadow-none p-6">
             <Breadcrumb activeView={activeView} />
             {children}
           </div>
@@ -364,7 +379,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <MobileSidebar
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
-        sidebarMenu={sidebarMenu}
+        sidebarMenu={sidebarMenuToRender}
         expandedMenus={expandedMenus}
         toggleSubmenu={toggleSubmenu}
         getAccentBgClass={getAccentBgClass}

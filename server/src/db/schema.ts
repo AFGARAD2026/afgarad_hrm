@@ -4,6 +4,7 @@ import {
   timestamp,
   date,
   numeric,
+  text,
 } from "drizzle-orm/pg-core";
 
 export const departments = pgTable("departments", {
@@ -31,9 +32,7 @@ export const users = pgTable("users", {
     length: 255,
   }).notNull(),
 
-  role: varchar("role", {
-    length: 50,
-  }).notNull(),
+  role: text("role").default("HRM_MANAGER").notNull(),
 
   status: varchar("status", {
     length: 30,
@@ -61,6 +60,10 @@ export const employees = pgTable("employees", {
 
   role: varchar("role", {
     length: 100,
+  }).notNull(),
+
+  avatar: varchar("image", {
+    length: 200,
   }).notNull(),
 
   status: varchar("status", {

@@ -66,3 +66,20 @@ export const loginUser = async (req: Request, res: Response) => {
       .json({ error: "An error occurred while logging in the user." });
   }
 };
+
+export const getUsersList = async (req: Request, res: Response) => {
+  try {
+    const usersData = await db.select().from(users);
+
+    return res.status(200).json({
+      message: "Successfully fetched users data",
+      success: true,
+      data: usersData,
+    });
+  } catch (error) {
+    console.error("Error at getting user:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while logging in the user." });
+  }
+};

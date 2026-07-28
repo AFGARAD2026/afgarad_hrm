@@ -1,36 +1,38 @@
-import React, { useState } from 'react';
-import { useHR } from '../../../app/providers/HRProvider';
-import { User, UserRole } from '../../../types';
-import { 
-  ShieldCheck, 
-  Trash2, 
-  Search, 
-  Plus, 
-  Users, 
-  UserCog, 
-  UserCheck, 
+import React, { useState } from "react";
+import { useHR } from "../../../app/providers/HRProvider";
+import { useUsers } from "../hooks/useUsers";
+import { User, UserRole } from "../../../types";
+import {
+  ShieldCheck,
+  Trash2,
+  Search,
+  Plus,
+  Users,
+  UserCog,
+  UserCheck,
   ShieldAlert,
   Sliders,
-  X
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+  X,
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 export const UsersPage: React.FC = () => {
-  const { users, addUser, updateUserRole, deleteUser } = useHR();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { addUser, updateUserRole, deleteUser } = useHR();
+  const { data: users = [], isLoading, isError } = useUsers();
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Modal states
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState<UserRole>('Employee');
-  const [status, setStatus] = useState<'Active' | 'Inactive'>('Active');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<UserRole>("Employee");
+  const [status, setStatus] = useState<"Active" | "Inactive">("Active");
 
   const handleOpenAdd = () => {
-    setName('');
-    setEmail('');
-    setRole('Employee');
-    setStatus('Active');
+    setName("");
+    setEmail("");
+    setRole("Employee");
+    setStatus("Active");
     setIsAddOpen(true);
   };
 
@@ -42,7 +44,7 @@ export const UsersPage: React.FC = () => {
       name: name.trim(),
       email: email.trim(),
       role,
-      status
+      status,
     });
 
     setIsAddOpen(false);
@@ -53,34 +55,45 @@ export const UsersPage: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to remove this user account? This will revoke all database & dashboard administration access.')) {
+    if (
+      confirm(
+        "Are you sure you want to remove this user account? This will revoke all database & dashboard administration access.",
+      )
+    ) {
       deleteUser(id);
     }
   };
 
   // Stats calculation
   const totalUsers = users.length;
-  const adminCount = users.filter(u => u.role === 'Admin').length;
-  const hrCount = users.filter(u => u.role === 'HR Manager').length;
-  const activeCount = users.filter(u => u.status === 'Active').length;
+  const superAdminCount = users.filter(
+    (u: any) => u.role === "Super Admin",
+  ).length;
+  const hrCount = users.filter((u: any) => u.role === "HR Manager").length;
+  const activeCount = users.filter((u: any) => u.status === "Active").length;
 
   // Search filter
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user: any) =>
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
     <div className="space-y-6 text-left">
-      
       {/* Header section with trigger */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">User Management Terminal</h2>
-          <p className="text-xs text-slate-500">Configure administrative access, coordinate permission scopes, and audit system users</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            User Management Terminal
+          </h2>
+          <p className="text-xs text-slate-500">
+            Configure administrative access, coordinate permission scopes, and
+            audit system users
+          </p>
         </div>
-        <button 
+        <button
           onClick={handleOpenAdd}
           className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-550 text-white font-semibold text-xs rounded-lg px-4 py-2.5 shadow-sm hover:shadow-md cursor-pointer transition-all duration-150 active:scale-98"
         >
@@ -94,9 +107,15 @@ export const UsersPage: React.FC = () => {
         {/* Total Users */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Total Active Users</span>
-            <p className="text-2xl font-black text-slate-900 dark:text-white">{totalUsers} Users</p>
-            <p className="text-[10px] text-slate-500 font-medium">Provisioned workspace credentials</p>
+            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+              Total Active Users
+            </span>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">
+              {totalUsers} Users
+            </p>
+            <p className="text-[10px] text-slate-500 font-medium">
+              Provisioned workspace credentials
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 border border-indigo-10 border-indigo-100/30 dark:border-indigo-900/60 flex items-center justify-center shrink-0">
             <Users size={18} />
@@ -106,9 +125,15 @@ export const UsersPage: React.FC = () => {
         {/* Admins count */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Super Administrators</span>
-            <p className="text-2xl font-black text-indigo-700 dark:text-indigo-400">{adminCount}</p>
-            <p className="text-[10px] text-slate-500 font-medium">Full read/write system access</p>
+            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+              Super Administrators
+            </span>
+            <p className="text-2xl font-black text-indigo-700 dark:text-indigo-400">
+              {superAdminCount}
+            </p>
+            <p className="text-[10px] text-slate-500 font-medium">
+              Full read/write system access
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/20 text-violet-600 dark:text-violet-400 border border-violet-100/30 dark:border-violet-900/60 flex items-center justify-center shrink-0">
             <ShieldAlert size={18} />
@@ -118,9 +143,15 @@ export const UsersPage: React.FC = () => {
         {/* HR Operations Officials count */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">HR Managers</span>
-            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{hrCount}</p>
-            <p className="text-[10px] text-slate-500 font-medium">HR and recruiting workflow managers</p>
+            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+              HR Managers
+            </span>
+            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+              {hrCount}
+            </p>
+            <p className="text-[10px] text-slate-500 font-medium">
+              HR and recruiting workflow managers
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-955/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 dark:border-emerald-900/60 flex items-center justify-center shrink-0">
             <UserCog size={18} />
@@ -130,9 +161,15 @@ export const UsersPage: React.FC = () => {
         {/* Status compliance */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Active Credentials</span>
-            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{activeCount}</p>
-            <p className="text-[10px] text-slate-500 font-medium">Status active standard count</p>
+            <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+              Active Credentials
+            </span>
+            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+              {activeCount}
+            </p>
+            <p className="text-[10px] text-slate-500 font-medium">
+              Status active standard count
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-100/30 dark:border-blue-900/60 flex items-center justify-center shrink-0">
             <UserCheck size={18} />
@@ -142,14 +179,13 @@ export const UsersPage: React.FC = () => {
 
       {/* Access User Table list panel */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm flex flex-col justify-between overflow-hidden">
-        
         {/* Search header controls */}
         <div className="p-4 border-b border-slate-150 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-905/30">
           <div className="relative flex-1 max-w-sm">
             <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
               <Search size={14} />
             </span>
-            <input 
+            <input
               type="text"
               placeholder="Search users by name, email, or custom authority level..."
               value={searchTerm}
@@ -158,7 +194,10 @@ export const UsersPage: React.FC = () => {
             />
           </div>
           <div className="text-xs text-slate-505 dark:text-slate-400 font-mono font-bold flex items-center gap-1">
-            <ShieldCheck size={13} className="text-indigo-600 dark:text-indigo-400" />
+            <ShieldCheck
+              size={13}
+              className="text-indigo-600 dark:text-indigo-400"
+            />
             <span>Root Authentication Token Active</span>
           </div>
         </div>
@@ -178,37 +217,60 @@ export const UsersPage: React.FC = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400 italic">
-                    No directory administrator records found. Click "Add Access User" above.
+                  <td
+                    colSpan={5}
+                    className="py-12 text-center text-slate-400 italic"
+                  >
+                    No directory administrator records found. Click "Add Access
+                    User" above.
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => {
-                  const statusStyles = 
-                    user.status === 'Active' ? 'bg-emerald-50 dark:bg-emerald-955/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/40' :
-                    'bg-slate-55/65 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-205 dark:border-slate-700';
+                filteredUsers.map((user: any) => {
+                  const statusStyles =
+                    user.status === "Active"
+                      ? "bg-emerald-50 dark:bg-emerald-955/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/40"
+                      : "bg-slate-55/65 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-205 dark:border-slate-700";
 
-                  const roleStyles = 
-                    user.role === 'Admin' ? 'bg-violet-50 dark:bg-violet-955/20 text-violet-700 dark:text-violet-450 border-violet-100 dark:border-violet-900/40 font-extrabold' :
-                    user.role === 'HR Manager' ? 'bg-indigo-50 dark:bg-indigo-955/20 text-indigo-750 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/40 font-bold' :
-                    'bg-slate-50 dark:bg-slate-800 text-slate-650 dark:text-slate-300 border-slate-100 dark:border-slate-700';
+                  const roleStyles =
+                    user.role === "Admin"
+                      ? "bg-violet-50 dark:bg-violet-955/20 text-violet-700 dark:text-violet-450 border-violet-100 dark:border-violet-900/40 font-extrabold"
+                      : user.role === "HR Manager"
+                        ? "bg-indigo-50 dark:bg-indigo-955/20 text-indigo-750 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/40 font-bold"
+                        : "bg-slate-50 dark:bg-slate-800 text-slate-650 dark:text-slate-300 border-slate-100 dark:border-slate-700";
 
                   return (
-                    <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                    <tr
+                      key={user.id}
+                      className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
+                    >
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 dark:text-white">{user.name}</div>
-                        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-mono font-semibold mt-0.5">ID: {user.id}</div>
+                        <div className="font-bold text-slate-900 dark:text-white">
+                          {user.name}
+                        </div>
+                        <div className="text-[10px] text-slate-400 uppercase tracking-widest font-mono font-semibold mt-0.5">
+                          ID: {user.id}
+                        </div>
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-650 dark:text-slate-350">{user.email}</td>
+                      <td className="py-3 px-4 font-mono text-slate-650 dark:text-slate-350">
+                        {user.email}
+                      </td>
                       <td className="py-3 px-4 font-sans">
                         <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 border rounded-md text-[9.5px] tracking-wide ${roleStyles}`}>
+                          <span
+                            className={`px-2 py-0.5 border rounded-md text-[9.5px] tracking-wide ${roleStyles}`}
+                          >
                             {user.role}
                           </span>
                           {/* Role update toggle drop downs */}
-                          <select 
+                          <select
                             value={user.role}
-                            onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
+                            onChange={(e) =>
+                              handleRoleChange(
+                                user.id,
+                                e.target.value as UserRole,
+                              )
+                            }
                             className="text-[9.5px] border border-slate-200 dark:border-slate-700 rounded-md p-0.5 font-bold text-slate-500 dark:text-slate-300 bg-white dark:bg-slate-800 cursor-pointer"
                           >
                             <option value="Admin">Admin</option>
@@ -218,12 +280,14 @@ export const UsersPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-0.5 border rounded-md font-bold text-[9px] uppercase tracking-wider ${statusStyles}`}>
+                        <span
+                          className={`px-2 py-0.5 border rounded-md font-bold text-[9px] uppercase tracking-wider ${statusStyles}`}
+                        >
                           {user.status}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <button 
+                        <button
                           onClick={() => handleDelete(user.id)}
                           className="p-1.5 hover:bg-rose-50 dark:hover:bg-rose-955/20 text-slate-400 hover:text-rose-600 rounded-lg transition-all cursor-pointer"
                           title="Revoke session credentials"
@@ -242,23 +306,24 @@ export const UsersPage: React.FC = () => {
         {/* Footer summary */}
         <div className="p-3 bg-slate-50 dark:bg-slate-850 border-t border-slate-105 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 rounded-b-xl">
           <span>Active security session</span>
-          <span className="font-bold text-indigo-600 dark:text-indigo-400">Administrative count: {adminCount} Administrators</span>
+          <span className="font-bold text-indigo-600 dark:text-indigo-400">
+            Administrative count: {superAdminCount} Administrators
+          </span>
         </div>
-
       </div>
 
       {/* Model access user Dialog portal */}
       <AnimatePresence>
         {isAddOpen && (
           <div className="fixed inset-0 z-55 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAddOpen(false)}
-              className="absolute inset-0 bg-slate-950" 
+              className="absolute inset-0 bg-slate-950"
             />
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -266,18 +331,28 @@ export const UsersPage: React.FC = () => {
             >
               <div className="flex items-center justify-between border-b border-slate-101 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-1.5 text-slate-900 dark:text-white">
-                  <ShieldCheck size={16} className="text-indigo-650 dark:text-indigo-400" />
-                  <h3 className="font-bold text-sm">Add System Access Credentials</h3>
+                  <ShieldCheck
+                    size={16}
+                    className="text-indigo-650 dark:text-indigo-400"
+                  />
+                  <h3 className="font-bold text-sm">
+                    Add System Access Credentials
+                  </h3>
                 </div>
-                <button onClick={() => setIsAddOpen(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer">
+                <button
+                  onClick={() => setIsAddOpen(false)}
+                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
+                >
                   <X size={15} />
                 </button>
               </div>
 
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">User Name</label>
-                  <input 
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    User Name
+                  </label>
+                  <input
                     type="text"
                     required
                     placeholder="e.g. Liam Smith"
@@ -288,8 +363,10 @@ export const UsersPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Corporate Email</label>
-                  <input 
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    Corporate Email
+                  </label>
+                  <input
                     type="email"
                     required
                     placeholder="e.g. liam.smith@corp.com"
@@ -301,22 +378,30 @@ export const UsersPage: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Access Scope Role</label>
-                    <select 
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Access Scope Role
+                    </label>
+                    <select
                       value={role}
                       onChange={(e) => setRole(e.target.value as UserRole)}
                       className="w-full text-xs p-2.5 border border-slate-205 dark:border-slate-700 rounded-lg focus:outline-hidden bg-white dark:bg-slate-800 dark:text-white cursor-pointer font-bold"
                     >
                       <option value="Employee">Employee (Basic view)</option>
-                      <option value="HR Manager">HR Manager (Moderate edits)</option>
+                      <option value="HR Manager">
+                        HR Manager (Moderate edits)
+                      </option>
                       <option value="Admin">Admin (Full override)</option>
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Initial Account Status</label>
-                    <select 
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Initial Account Status
+                    </label>
+                    <select
                       value={status}
-                      onChange={(e) => setStatus(e.target.value as 'Active' | 'Inactive')}
+                      onChange={(e) =>
+                        setStatus(e.target.value as "Active" | "Inactive")
+                      }
                       className="w-full text-xs p-2.5 border border-slate-205 dark:border-slate-700 rounded-lg focus:outline-hidden bg-white dark:bg-slate-800 dark:text-white cursor-pointer font-bold"
                     >
                       <option value="Active">Active Credentials</option>
@@ -326,15 +411,15 @@ export const UsersPage: React.FC = () => {
                 </div>
 
                 <div className="flex gap-2 justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setIsAddOpen(false)}
                     className="px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-505 dark:text-slate-300 border border-slate-250 dark:border-slate-705 text-2xs font-bold rounded-lg cursor-pointer bg-transparent"
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-2xs font-extrabold rounded-lg select-none cursor-pointer"
                   >
                     Register Access User
@@ -345,7 +430,6 @@ export const UsersPage: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
-
     </div>
   );
 };
